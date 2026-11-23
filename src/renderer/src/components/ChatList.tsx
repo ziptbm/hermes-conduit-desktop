@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { underSource } from '../state/voiceList'
 import { includedInAll, profileGroups, readClosedSections, readGroupByProfile, readLeftOut, shownInAll, writeClosedSections, writeGroupByProfile, writeLeftOut } from '../state/profileGroups'
-import { sectionRows, startOfDay, timeLabel, type ChatRow } from '../state/chats'
+import { sectionRows, startOfDay, timeLabel, type ChatRow, type UnreadProfile } from '../state/chats'
 import type { Bot } from '../state/bots'
 import { BotAvatar } from './BotsHome'
 import { t } from '@shared/i18n'
@@ -86,6 +86,10 @@ interface Props {
   error: string | null
   /** Rows that may be out of date are being read again: the Updating… capsule. */
   updating?: boolean
+  /** Only the gateway's own profile's chats are listed: this dashboard has no every-profile list (an older Hermes). */
+  ownProfileOnly?: boolean
+  /** Profiles whose chats Hermes couldn't read on the last list answer. */
+  unread?: UnreadProfile[]
   selectedId: string | null
   runningIds: ReadonlySet<string>
   /** Chats Hermes waits on the user in (an approval or a question): Needs approval on the row. */
@@ -167,6 +171,7 @@ export interface MoveTarget {
 /** Profiles In messages asks at most, one request each. */
 const MAX_SEARCH_PROFILES = 8
 const NONE: ReadonlySet<string> = new Set()
+const NO_UNREAD: UnreadProfile[] = []
 const NO_ROWS: OtherChatRow[] = []
 /** Grouped by profile, another host's section shows its newest five until Show more. */
 const OTHER_HOST_ROWS = 5
@@ -186,11 +191,14 @@ function searchText(row: ChatRow): string {
 }
 
 const sameProfile = (row: ChatRow, name: string) => (row.profile ?? 'default').toLowerCase() === name.toLowerCase()
+const sameName = (a: string | undefined, b: string | undefined) => (a ?? 'default').toLowerCase() === (b ?? 'default').toLowerCase()
 
 export function ChatList({
   rows,
   updating,
   error,
+  ownProfileOnly = false,
+  unread = NO_UNREAD,
   selectedId,
   runningIds,
   waitingIds = NONE,
@@ -515,6 +523,16 @@ export function ChatList({
     active.find(k => k === 'inprogress' || k === 'done') ??
     active.find(k => k === 'unread' || k === 'running' || k === 'waiting') ??
     null
+  // Why chats are missing, said above the rows in place of a misleading "No chats yet." (desktop#400):
+  // the profiles shown whose chats Hermes couldn't read, and a list that holds the gateway's own profile's
+  // chats alone, where only that profile ('default', as its rows go unnamed) has any to show.
+  const unreadShown = otherProfile
+    ? []
+    : unread.filter(u => (profile ? sameName(u.profile, profile) : shownInAll(u.profile, botNames, allLeftOut)))
+  const othersMissing =
+    ownProfileOnly && !otherProfile && (profile ? !sameName(profile, 'default') : includedInAll(botNames, allLeftOut).length > 1)
+  // When a note above says why nothing is listed, the empty list's own words would only mislead.
+  const explained = unreadShown.length > 0 || othersMissing
   // The chip: the filters chosen, or All, then what Filter › Projects hides (Home by name, since its chats are in no project).
   const hiddenOthers = [...hiddenProjects].filter(id => id !== NO_PROJECT).length
   const chipParts = [
@@ -691,7 +709,17 @@ export function ChatList({
       <div className="chatlist-scroll" ref={scroller}>
         {rows === null && !error ? <div className="empty">{t('Loading chats…')}</div> : null}
         {error ? <div className="empty">{t('Couldn’t load your chats: {error}', { error })}</div> : null}
-        {rows && sections.length === 0 && !query.trim() ? (
+        {othersMissing ? <div className="empty">{t('This version of Hermes lists the chats of one profile only. Update it on the host to see every profile’s chats.')}</div> : null}
+        {unreadShown.map(u => (
+          <div key={u.profile} className="empty">
+            {u.corrupt
+              ? t('Hermes couldn’t read {profile}’s chats: its chat history on the host is damaged.', { profile: u.profile })
+              : u.error
+                ? t('Hermes couldn’t read {profile}’s chats: {error}', { profile: u.profile, error: u.error })
+                : t('Hermes couldn’t read {profile}’s chats.', { profile: u.profile })}
+          </div>
+        ))}
+        {rows && sections.length === 0 && !query.trim() && !error && !(explained && emptyFilter === null) ? (
           <div className="empty">
             {hidesEverything && hiddenProjects.size
               ? t('The chats here are hidden in Filter > Projects. Tick them again to show them.')

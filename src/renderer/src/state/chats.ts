@@ -77,6 +77,44 @@ export function responseCount(body: unknown): number {
   return Array.isArray(sessions) ? sessions.length : 0
 }
 
+/** A profile whose chats the every-profile list couldn't read. */
+export interface UnreadProfile {
+  profile: string
+  /** Why its store wouldn't open, in Hermes' words; left out when Hermes gave none. */
+  error?: string
+  /** Hermes latched its store as damaged (structurally corrupt), so what it lists may be partial. */
+  corrupt?: boolean
+}
+
+/**
+ * The profiles the every-profile list couldn't read chats from (desktop#400).
+ * Hermes' /api/profiles/sessions answers 200 with a profile's rows simply
+ * gone when its store wouldn't open: it names the profile in `errors`, and
+ * in `storage` when it latched the store as corrupt. Unread, such a profile
+ * looks like one with no chats.
+ */
+export function unreadProfiles(body: unknown): UnreadProfile[] {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return []
+  const { errors, storage } = body as { errors?: unknown; storage?: unknown }
+  const found = new Map<string, UnreadProfile>()
+  if (Array.isArray(errors)) {
+    for (const entry of errors) {
+      if (!entry || typeof entry !== 'object') continue
+      const { profile, error } = entry as { profile?: unknown; error?: unknown }
+      // One that names a profile is kept, with its reason when it has one: Hermes writes the reason from the
+      // exception's message, which can be empty, and the profile's chats are gone from the answer all the same.
+      if (typeof profile !== 'string' || !profile) continue
+      found.set(profile, { profile, ...(typeof error === 'string' && error ? { error } : {}) })
+    }
+  }
+  if (storage && typeof storage === 'object' && !Array.isArray(storage)) {
+    for (const [profile, state] of Object.entries(storage as Record<string, unknown>)) {
+      if (profile && state === 'corrupt') found.set(profile, { profile, corrupt: true, ...(found.get(profile) ?? {}) })
+    }
+  }
+  return [...found.values()]
+}
+
 /**
  * A fresh first page over the rows already read: the page wins for the
  * newest chats, and the older pages stay as they were read.

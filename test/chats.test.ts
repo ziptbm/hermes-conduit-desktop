@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chatListPath, isLegacyKanbanWorker, keepSameRows, mergeRows, refreshFirstPage, responseCount, rowsFromResponse, sameRow, sectionRows, toMillis, type ChatRow } from '../src/renderer/src/state/chats'
+import { chatListPath, isLegacyKanbanWorker, keepSameRows, mergeRows, refreshFirstPage, responseCount, rowsFromResponse, sameRow, sectionRows, toMillis, unreadProfiles, type ChatRow } from '../src/renderer/src/state/chats'
 
 const now = new Date(2026, 10, 18, 15, 0).getTime()
 const hoursAgo = (h: number) => (now - h * 3_600_000) / 1000
@@ -119,5 +119,37 @@ describe('the saved list against a fresh read', () => {
     const saved = JSON.parse(JSON.stringify(fresh)) as ChatRow
     expect(sameRow(saved, fresh)).toBe(true)
     expect(keepSameRows([saved], [fresh])[0]).toBe(saved)
+  })
+})
+
+describe('the profiles the every-profile list could not read (desktop#400)', () => {
+  it('names each one Hermes reported, with its reason', () => {
+    expect(unreadProfiles({ sessions: [], errors: [{ profile: 'atlas', error: 'database is locked' }] })).toEqual([
+      { profile: 'atlas', error: 'database is locked' }
+    ])
+  })
+
+  it('marks a profile whose store Hermes latched as damaged', () => {
+    expect(unreadProfiles({ sessions: [], storage: { furina: 'corrupt' } })).toEqual([{ profile: 'furina', corrupt: true }])
+  })
+
+  it('says a damaged store is damaged, with the reason Hermes gave too', () => {
+    const body = { sessions: [], errors: [{ profile: 'atlas', error: 'database is locked' }], storage: { atlas: 'corrupt' } }
+    expect(unreadProfiles(body)).toEqual([{ profile: 'atlas', error: 'database is locked', corrupt: true }])
+  })
+
+  it('reads nothing into an answer that names none, a store that is fine, or a row that names no profile', () => {
+    expect(unreadProfiles({ sessions: [] })).toEqual([])
+    expect(unreadProfiles({ sessions: [], errors: [], storage: { atlas: 'ok' } })).toEqual([])
+    expect(unreadProfiles([{ id: 'a1', profile: 'atlas' }])).toEqual([])
+    expect(unreadProfiles({ sessions: [], errors: [{ error: 'x' }, 'atlas', null] })).toEqual([])
+  })
+
+  it('keeps a profile Hermes named with no reason, since its chats are gone from the answer all the same', () => {
+    // Hermes writes the reason from the exception’s message, which can be empty.
+    expect(unreadProfiles({ sessions: [], errors: [{ profile: 'atlas' }, { profile: 'ops', error: '' }] })).toEqual([
+      { profile: 'atlas' },
+      { profile: 'ops' }
+    ])
   })
 })

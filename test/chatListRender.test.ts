@@ -186,3 +186,108 @@ describe('the chat list draws', () => {
     expect(html).not.toContain('filter-active')
   })
 })
+
+describe('a chat list with chats missing says why, where it would say the profile has none (desktop#400)', () => {
+  const bot = (name: string) => ({ name, title: name[0].toUpperCase() + name.slice(1), hasAvatar: false })
+  const list = async (props: Record<string, unknown>) => {
+    const path = '../src/renderer/src/components/ChatList.tsx'
+    const { ChatList } = (await import(/* @vite-ignore */ path)) as { ChatList: unknown }
+    return renderToStaticMarkup(
+      createElement(ChatList as never, {
+        rows: [],
+        error: null,
+        selectedId: null,
+        runningIds: new Set(),
+        onSelect: () => {},
+        onNewChat: () => {},
+        bots: [bot('default'), bot('atlas')],
+        ...props
+      } as never)
+    )
+  }
+  const older = 'This version of Hermes lists the chats of one profile only.'
+
+  it('keeps "No chats yet." where nothing is missing, whoever else Hermes could not read', async () => {
+    const html = await list({ profile: 'atlas', unread: [{ profile: 'coder', error: 'database is locked' }] })
+    expect(html).toContain('No chats yet.')
+    expect(html).not.toContain('couldn’t read')
+    expect(html).not.toContain(older)
+  })
+
+  it('where the dashboard lists the gateway’s own profile alone, says so for any other profile, in place of "No chats yet."', async () => {
+    const html = await list({ profile: 'atlas', ownProfileOnly: true })
+    expect(html).toContain(older)
+    expect(html).not.toContain('No chats yet.')
+  })
+
+  it('and in All, once a second profile’s chats are not there to list', async () => {
+    expect(await list({ ownProfileOnly: true })).toContain(older)
+    // The gateway's own profile is the one that is listed: its empty list is simply empty, and a strip with
+    // it alone has nothing missing to explain.
+    const own = await list({ profile: 'default', ownProfileOnly: true })
+    expect(own).not.toContain(older)
+    expect(own).toContain('No chats yet.')
+    expect(await list({ ownProfileOnly: true, bots: [bot('default')] })).not.toContain(older)
+  })
+
+  it('names a profile whose chats Hermes could not read, with Hermes’ reason, in place of "No chats yet."', async () => {
+    const html = await list({ profile: 'atlas', unread: [{ profile: 'Atlas', error: 'database is locked' }] })
+    expect(html).toContain('Hermes couldn’t read Atlas’s chats: database is locked')
+    expect(html).not.toContain('No chats yet.')
+    // Another profile's is not this list's to explain.
+    expect(await list({ profile: 'furina', unread: [{ profile: 'atlas', error: 'database is locked' }] })).toContain('No chats yet.')
+  })
+
+  it('and with no reason, where Hermes gave none', async () => {
+    const html = await list({ profile: 'atlas', unread: [{ profile: 'atlas' }] })
+    expect(html).toContain('Hermes couldn’t read atlas’s chats.')
+    expect(html).not.toContain('No chats yet.')
+  })
+
+  it('says a profile’s chat history is damaged where Hermes latched its store as corrupt', async () => {
+    const html = await list({ profile: 'atlas', unread: [{ profile: 'atlas', corrupt: true, error: 'database is locked' }] })
+    expect(html).toContain('Hermes couldn’t read atlas’s chats: its chat history on the host is damaged.')
+    expect(html).not.toContain('database is locked')
+  })
+
+  it('says a damaged store above the chats it still listed', async () => {
+    const html = await list({
+      rows: [{ id: 'a1', title: 'Atlas chat', profile: 'atlas', activeAt: Date.now(), pinned: false }],
+      selectedId: 'a1',
+      profile: 'atlas',
+      unread: [{ profile: 'atlas', corrupt: true }]
+    })
+    expect(html).toContain('Atlas chat')
+    expect(html).toContain('its chat history on the host is damaged.')
+    expect(html).not.toContain('No chats yet.')
+  })
+
+  it('names none the person left out of All, nor counts them as missing', async () => {
+    localStorage.setItem('conduit.allProfiles.leftOut', JSON.stringify(['atlas']))
+    try {
+      const html = await list({ unread: [{ profile: 'atlas', error: 'database is locked' }], ownProfileOnly: true })
+      expect(html).not.toContain('couldn’t read')
+      expect(html).not.toContain(older)
+    } finally {
+      localStorage.removeItem('conduit.allProfiles.leftOut')
+    }
+  })
+
+  it('says only why it couldn’t read them where the last read failed over an empty list', async () => {
+    const html = await list({ error: 'The operation was aborted due to timeout' })
+    expect(html).toContain('Couldn’t load your chats: The operation was aborted due to timeout')
+    expect(html).not.toContain('No chats yet.')
+  })
+
+  it('names every profile it could not read in All', async () => {
+    const html = await list({
+      unread: [
+        { profile: 'atlas', error: 'database is locked' },
+        { profile: 'furina', corrupt: true }
+      ]
+    })
+    expect(html).toContain('Hermes couldn’t read atlas’s chats: database is locked')
+    expect(html).toContain('Hermes couldn’t read furina’s chats: its chat history on the host is damaged.')
+  })
+})
+

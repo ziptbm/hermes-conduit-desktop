@@ -2310,6 +2310,8 @@ function Shell({
                   rows={listedRows}
                   error={list.error}
                   updating={list.updating}
+                  ownProfileOnly={list.ownProfileOnly}
+                  unread={list.unread}
                   selectedId={dockedChat?.id ?? chat.storedId ?? selected.id}
                   runningIds={runningIds}
                   waitingIds={waitingIds}

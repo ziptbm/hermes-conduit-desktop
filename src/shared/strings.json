@@ -45299,6 +45299,51 @@
     "zh-Hans": "连续对话",
     "zh-Hant": "連續對話"
   },
+  "Hermes couldn’t read {profile}’s chats: {error}": {
+    "de": "Hermes konnte die Chats von {profile} nicht lesen: {error}",
+    "es": "Hermes no pudo leer los chats de {profile}: {error}",
+    "fr": "Hermes n’a pas pu lire les discussions de {profile} : {error}",
+    "id": "Hermes tidak dapat membaca obrolan {profile}: {error}",
+    "it": "Hermes non ha potuto leggere le chat di {profile}: {error}",
+    "ja": "Hermes は {profile} のチャットを読み取れませんでした: {error}",
+    "ko": "Hermes에서 {profile} 프로필의 채팅을 읽지 못했습니다: {error}",
+    "pl": "Hermes nie mógł odczytać czatów profilu {profile}: {error}",
+    "pt-BR": "O Hermes não pôde ler as conversas de {profile}: {error}",
+    "ru": "Hermes не удалось прочитать чаты профиля {profile}: {error}",
+    "tr": "Hermes, {profile} sohbetlerini okuyamadı: {error}",
+    "zh-Hans": "Hermes 无法读取 {profile} 的聊天：{error}",
+    "zh-Hant": "Hermes 無法讀取 {profile} 的聊天：{error}"
+  },
+  "Hermes couldn’t read {profile}’s chats: its chat history on the host is damaged.": {
+    "de": "Hermes konnte die Chats von {profile} nicht lesen: Der Chatverlauf auf dem Host ist beschädigt.",
+    "es": "Hermes no pudo leer los chats de {profile}: su historial de chats en el host está dañado.",
+    "fr": "Hermes n’a pas pu lire les discussions de {profile} : son historique de discussions sur l’hôte est endommagé.",
+    "id": "Hermes tidak dapat membaca obrolan {profile}: riwayat obrolannya di host rusak.",
+    "it": "Hermes non ha potuto leggere le chat di {profile}: la sua cronologia chat sull’host è danneggiata.",
+    "ja": "Hermes は {profile} のチャットを読み取れませんでした: ホスト上のチャット履歴が壊れています。",
+    "ko": "Hermes에서 {profile} 프로필의 채팅을 읽지 못했습니다: 호스트의 채팅 기록이 손상되었습니다.",
+    "pl": "Hermes nie mógł odczytać czatów profilu {profile}: jego historia czatów na hoście jest uszkodzona.",
+    "pt-BR": "O Hermes não pôde ler as conversas de {profile}: o histórico de conversas no host está danificado.",
+    "ru": "Hermes не удалось прочитать чаты профиля {profile}: его история чатов на хосте повреждена.",
+    "tr": "Hermes, {profile} sohbetlerini okuyamadı: ana makinedeki sohbet geçmişi hasarlı.",
+    "zh-Hans": "Hermes 无法读取 {profile} 的聊天：其在主机上的聊天记录已损坏。",
+    "zh-Hant": "Hermes 無法讀取 {profile} 的聊天：其在主機上的聊天記錄已損壞。"
+  },
+  "Hermes couldn’t read {profile}’s chats.": {
+    "de": "Hermes konnte die Chats von {profile} nicht lesen.",
+    "es": "Hermes no pudo leer los chats de {profile}.",
+    "fr": "Hermes n’a pas pu lire les discussions de {profile}.",
+    "id": "Hermes tidak dapat membaca obrolan {profile}.",
+    "it": "Hermes non ha potuto leggere le chat di {profile}.",
+    "ja": "Hermes は {profile} のチャットを読み取れませんでした。",
+    "ko": "Hermes에서 {profile} 프로필의 채팅을 읽지 못했습니다.",
+    "pl": "Hermes nie mógł odczytać czatów profilu {profile}.",
+    "pt-BR": "O Hermes não pôde ler as conversas de {profile}.",
+    "ru": "Hermes не удалось прочитать чаты профиля {profile}.",
+    "tr": "Hermes, {profile} sohbetlerini okuyamadı.",
+    "zh-Hans": "Hermes 无法读取 {profile} 的聊天。",
+    "zh-Hant": "Hermes 無法讀取 {profile} 的聊天。"
+  },
   "Hold the microphone button while you speak and let go to send, so pauses never end your turn. Slide off before letting go to cancel. Pressing while Hermes speaks stops the reply. Applies to the next call, on this computer.": {
     "de": "Halte die Mikrofontaste gedrückt, während du sprichst, und lass los, um zu senden, damit Pausen deinen Beitrag nie beenden. Zieh vor dem Loslassen weg, um abzubrechen. Drücken, während Hermes spricht, stoppt die Antwort. Gilt ab dem nächsten Anruf, auf diesem Computer.",
     "es": "Mantén pulsado el botón del micrófono mientras hablas y suéltalo para enviar, así las pausas nunca terminan tu turno. Desliza fuera antes de soltar para cancelar. Pulsarlo mientras Hermes habla detiene la respuesta. Se aplica a la próxima llamada, en este ordenador.",
@@ -45388,6 +45433,21 @@
     "tr": "Bas konuş",
     "zh-Hans": "按住说话",
     "zh-Hant": "按住說話"
+  },
+  "This version of Hermes lists the chats of one profile only. Update it on the host to see every profile’s chats.": {
+    "de": "Diese Version von Hermes listet nur die Chats eines Profils. Aktualisiere sie auf dem Host, um die Chats aller Profile zu sehen.",
+    "es": "Esta versión de Hermes solo lista los chats de un perfil. Actualízalo en el host para ver los chats de todos los perfiles.",
+    "fr": "Cette version de Hermes ne liste les discussions que d’un seul profil. Mettez-la à jour sur l’hôte pour voir les discussions de tous les profils.",
+    "id": "Versi Hermes ini hanya menampilkan daftar obrolan dari satu profil. Perbarui di host untuk melihat obrolan semua profil.",
+    "it": "Questa versione di Hermes elenca solo le chat di un profilo. Aggiornala sull’host per vedere le chat di tutti i profili.",
+    "ja": "このバージョンの Hermes は、いずれか 1 つのプロファイルのチャットだけを一覧に表示します。ホスト上で Hermes を更新すると、すべてのプロファイルのチャットが表示されます。",
+    "ko": "이 버전의 Hermes는 한 프로필의 채팅만 표시합니다. 호스트에서 업데이트하면 모든 프로필의 채팅을 볼 수 있습니다.",
+    "pl": "Ta wersja Hermesa wyświetla czaty tylko jednego profilu. Zaktualizuj ją na hoście, aby zobaczyć czaty wszystkich profili.",
+    "pt-BR": "Esta versão do Hermes lista as conversas de apenas um perfil. Atualize-o no host para ver as conversas de todos os perfis.",
+    "ru": "Эта версия Hermes показывает чаты только одного профиля. Обновите её на хосте, чтобы видеть чаты всех профилей.",
+    "tr": "Hermes’in bu sürümü yalnızca bir profilin sohbetlerini listeliyor. Tüm profillerin sohbetlerini görmek için ana makinede güncelleyin.",
+    "zh-Hans": "此版本的 Hermes 只列出一个配置的聊天。请在主机上更新它，以查看所有配置的聊天。",
+    "zh-Hant": "此版本的 Hermes 只列出一個設定檔的聊天。請在主機上更新它，以查看所有設定檔的聊天。"
   },
   "Your speech server says this when the call connects:": {
     "de": "Dein Sprachserver sagt das, wenn der Anruf verbunden wird:",
